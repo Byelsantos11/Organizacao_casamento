@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block 'body' %}
+{% include "partials/navbar.html" %}
+
+<div class="max-w-7xl mx-auto mt-12">
+    <div class="grid grid-cols-2 gap-4">
+        <div class="bg-slate-200/20 p-6 rounded-md">
+            <h2 class="text-balance text-xl font-semibold tracking-tight text-gray-900">Crie sua lista de presentes</h2>
+            <br>
+
+            
+
+            <form action="{% url 'home' %}" method="POST" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <label class="mt-4 block text-sm leading-6 text-gray-900">Nome do presente</label>
+                <input type="text" name="nome_presente" class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gr">
+
+                <div class="flex space-x-4">
+                    <div class="w-full">
+                        <label class="mt-4 block text-sm leading-6 text-gray-900">Foto de exemplo</label>
+                        <input type="file" name="foto" class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gr">
+                    </div>
+                    <div class="w-full">
+                        <label class="mt-4 block text-sm leading-6 text-gray-900">Preço estimado</label>
+                        <input type="number" name="preco" class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gr">
+                    </div>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <div class="w-full">
+                        <label class="mt-4 block text-sm leading-6 text-gray-900">Importância</label>
+                        <input type="range" min='1' max="5" name="importancia" class="block w-full py-3 text-gray-900">
+                    </div>
+                    <div class="w-full">
+                        <input type="submit" class="rounded-md w-full mt-4 bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-ind">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="mx-auto">
+            <canvas id="myChart" class=""></canvas>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-5 mt-4 gap-4">
+        {% for presente in presentes %}
+        <div>
+            {% if presente.foto %}
+            <img class="aspect-[3/2] w-full rounded-2xl object-cover" src="{{ presente.foto.url }}" alt="">
+            {% endif %}
+            <h3 class="mt-2 text-lg font-semibold leading-8 text-gray-900">{{ presente.nome_presente }}</h3>
+            {%if i.reservado %} {%endif%}
+            <p class="mt-4 block text-sm leading-6 text-gray-900">Reservado por {{presente.reservado_por}}</p>
+            <p class="text-base leading-7 text-gray-600"></p>
+
+            {% if presente.importancia <= 2 %}
+            <span class="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-400/30">Pouco Importante</span>
+            {% elif presente.importancia < 4 %}
+            <span class="inline-flex items-center rounded-md bg-orange-400/10 px-2 py-1 text-xs font-medium text-orange-400 ring-1 ring-inset ring-orange-400/30">Importante</span>
+            {% else %}
+            <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/30">Muito Importante</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('myChart');
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Não reservado', 'Reservado'],
+            datasets: [{
+                label: 'Presentes',
+                data: [5, 6],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}
